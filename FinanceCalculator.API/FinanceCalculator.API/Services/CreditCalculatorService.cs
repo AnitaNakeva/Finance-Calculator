@@ -15,67 +15,79 @@ namespace FinanceCalculator.API.Services
             decimal balance = request.Principal;
             int totalMonths = request.TermMonths;
 
-            decimal monthlyRate = request.AnnualInterestRate / 12m;
-            decimal promoMonthlyRate = request.PromoAnnualInterestRate / 12m;
+            decimal annualRate = request.AnnualInterestRate / 100m;
+            decimal promoAnnualRate = request.PromoAnnualInterestRate / 100m;
+
+            decimal monthlyRate = annualRate / 12m;
+            decimal promoMonthlyRate = promoAnnualRate / 12m;
+
+            int graceMonths = request.GraceMonths;
+            int promoMonths = request.PromoMonths;
 
             decimal annuityPayment = 0m;
+            decimal principalPerMonth = 0m;
 
-            // 1️⃣ АНЮИТЕТ – първоначална вноска (винаги за ЦЕЛИЯ срок)
             if (request.PaymentType == PaymentType.Annuity)
             {
-                decimal firstRate = request.PromoMonths > 0
-                    ? promoMonthlyRate
-                    : monthlyRate;
+                int repaymentMonths = totalMonths - graceMonths;
+                if (repaymentMonths > 0)
+                {
+                    decimal firstRate =
+                        promoMonths > graceMonths ? promoMonthlyRate : monthlyRate;
 
-                annuityPayment = CalculateAnnuity(balance, firstRate, totalMonths);
-                response.MonthlyPayment = Round(annuityPayment);
+                    annuityPayment = CalculateAnnuity(balance, firstRate, repaymentMonths);
+                }
+            }
+            else if (request.PaymentType == PaymentType.Decreasing)
+            {
+                int repaymentMonths = totalMonths - graceMonths;
+                if (repaymentMonths > 0)
+                    principalPerMonth = request.Principal / repaymentMonths;
             }
 
-            // 2️⃣ НАМАЛЯВАЩА СХЕМА – фиксирана главница
-            decimal principalPerMonth =
-                request.PaymentType == PaymentType.Decreasing
-                    ? request.Principal / totalMonths
-                    : 0m;
-
-            // 3️⃣ МЕСЕЧЕН ЦИКЪЛ
             for (int month = 1; month <= totalMonths; month++)
             {
-                decimal rate =
-                    request.PromoMonths > 0 && month <= request.PromoMonths
-                        ? promoMonthlyRate
-                        : monthlyRate;
+                bool isPromo = promoMonths > 0 && month <= promoMonths;
+                bool isGrace = graceMonths > 0 && month <= graceMonths;
 
-                // ➤ преизчисляване на анюитет след промо периода
-                if (request.PaymentType == PaymentType.Annuity &&
-                    request.PromoMonths > 0 &&
-                    month == request.PromoMonths + 1)
-                {
-                    int remainingMonths = totalMonths - request.PromoMonths;
-                    annuityPayment = CalculateAnnuity(balance, monthlyRate, remainingMonths);
-                }
+                decimal rate = isPromo ? promoMonthlyRate : monthlyRate;
 
                 decimal openingBalance = balance;
                 decimal interest = openingBalance * rate;
-                decimal principal;
-                decimal payment;
+                decimal principal = 0m;
+                decimal payment = 0m;
 
-                if (request.PaymentType == PaymentType.Annuity)
+                if (isGrace)
                 {
-                    principal = annuityPayment - interest;
-                    payment = annuityPayment;
+                    principal = 0m;
+                    payment = interest;
                 }
-                else // Decreasing
+                else
                 {
-                    principal = principalPerMonth;
-                    payment = principal + interest;
+                    if (request.PaymentType == PaymentType.Annuity &&
+                        (month == graceMonths + 1 || month == promoMonths + 1))
+                    {
+                        int remainingMonths = totalMonths - month + 1;
+                        annuityPayment = CalculateAnnuity(balance, rate, remainingMonths);
+                    }
+
+                    if (request.PaymentType == PaymentType.Annuity)
+                    {
+                        principal = annuityPayment - interest;
+                        payment = annuityPayment;
+                    }
+                    else // Decreasing
+                    {
+                        principal = principalPerMonth;
+                        payment = principal + interest;
+                    }
                 }
 
-                // ➤ последен месец – затваряме кредита точно
                 if (month == totalMonths)
                 {
                     principal = openingBalance;
                     interest = openingBalance * rate;
-                    payment = principal + interest;
+                    payment = principal + interest; 
                 }
 
                 decimal closingBalance = openingBalance - principal;
@@ -92,8 +104,7 @@ namespace FinanceCalculator.API.Services
 
                 balance = closingBalance;
             }
-
-            // 4️⃣ ОБЩИ СУМИ
+            
             decimal totalInterest = 0m;
             decimal totalPaid = 0m;
 
@@ -103,6 +114,11 @@ namespace FinanceCalculator.API.Services
                 totalPaid += row.Payment;
             }
 
+            response.MonthlyPayment =
+                request.PaymentType == PaymentType.Annuity
+                    ? Round(annuityPayment)
+                    : 0m;
+
             response.TotalInterest = Round(totalInterest);
             response.TotalPaid = Round(totalPaid);
             response.Schedule = schedule;
@@ -110,7 +126,6 @@ namespace FinanceCalculator.API.Services
             return response;
         }
 
-        // 🔢 Формула за анюитетна вноска
         private decimal CalculateAnnuity(decimal principal, decimal monthlyRate, int months)
         {
             if (monthlyRate == 0 || months == 0)
@@ -120,7 +135,6 @@ namespace FinanceCalculator.API.Services
                    (1 - (decimal)Math.Pow((double)(1 + monthlyRate), -months));
         }
 
-        // 🔁 Закръгляне до 2 знака
         private decimal Round(decimal value)
         {
             return Math.Round(value, 2, MidpointRounding.AwayFromZero);
