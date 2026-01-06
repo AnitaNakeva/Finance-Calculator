@@ -2,16 +2,17 @@
 {
     public class RefinanceRequest
     {
-        // ====== Current loan (existing) ======
-        public decimal CurrentPrincipal { get; set; }           // Размер на кредита
-        public int CurrentTermMonths { get; set; }              // Срок (месеци)
-        public decimal CurrentAnnualInterestRate { get; set; }  // Лихва (%)
-        public int PaymentsMade { get; set; }                   // Брой направени вноски
-        public decimal EarlyRepaymentFeePercent { get; set; }   // Такса за предсрочно погасяване (%)
+      
+        public decimal CurrentPrincipal { get; set; }           
+        public int CurrentTermMonths { get; set; }              
+        public decimal CurrentAnnualInterestRate { get; set; }  
+        public int PaymentsMade { get; set; }                   
+        public decimal EarlyRepaymentFeePercent { get; set; }   
 
-        // ====== New loan (refinance) ======
-        public decimal NewAnnualInterestRate { get; set; }      // Лихва (%)
-        public decimal UpfrontFeesPercent { get; set; }         // Първоначални такси (%)
-        public decimal UpfrontFeesFixed { get; set; }           // Първоначални такси (валута)
+        
+        public decimal NewAnnualInterestRate { get; set; }      
+        public decimal UpfrontFeesPercent { get; set; }        
+        public decimal UpfrontFeesFixed { get; set; }        
     }
 }
+
