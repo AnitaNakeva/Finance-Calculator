@@ -14,6 +14,7 @@ namespace FinanceCalculator.API
 
             builder.Services.AddScoped<ICreditCalculatorService, CreditCalculatorService>();
             builder.Services.AddScoped<IRefinanceCalculatorService, RefinanceCalculatorService>();
+            builder.Services.AddScoped<ILeasingGoodsCalculatorService, LeasingGoodsCalculatorService>();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
