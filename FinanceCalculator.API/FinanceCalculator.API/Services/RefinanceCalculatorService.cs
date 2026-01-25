@@ -8,18 +8,18 @@ namespace FinanceCalculator.API.Services
         public RefinaceResponce Calculate (RefinanceRequest request)
         {
             //Валидация на входните данни
-         
+
             Validate(request);
 
             var response = new RefinaceResponce();
 
             //Колко месеца остават по текущия кредит
-           
+
             int remainingMonths = request.CurrentTermMonths - request.PaymentsMade;
             response.RemainingMonths = remainingMonths;
 
             // Изчисляваме целия погасителен план на текущия кредит
-           
+
             var fullCurrentSchedule = BuildAnnuitySchedule(
                 principal: request.CurrentPrincipal,
                 annualInterestRatePercent: request.CurrentAnnualInterestRate,
@@ -27,7 +27,7 @@ namespace FinanceCalculator.API.Services
             );
 
             // Определяме колко точно главница остава
-           
+
             decimal remainingPrincipal;
 
             if (request.PaymentsMade == 0)
@@ -46,7 +46,7 @@ namespace FinanceCalculator.API.Services
             response.RemainingPrincipal = remainingPrincipal;
 
             // Месечната вноска по текущия кредит
-           
+
             decimal currentMonthlyPayment =
                 fullCurrentSchedule.Count > 0
                     ? fullCurrentSchedule[0].Payment
@@ -55,7 +55,7 @@ namespace FinanceCalculator.API.Services
             response.CurrentMonthlyPayment = Round(currentMonthlyPayment);
 
             // Създаваме погасителен план само за оставащите месеци
-            
+
             var currentRemainingSchedule = new List<ScheduleItem>();
 
             if (remainingMonths > 0)
@@ -81,7 +81,7 @@ namespace FinanceCalculator.API.Services
                 Round(currentTotalPaidRemaining);
 
             // Такса за предсрочно погасяване
-            
+
             decimal earlyRepaymentFee =
                 remainingPrincipal *
                 (request.EarlyRepaymentFeePercent / 100m);
@@ -97,7 +97,7 @@ namespace FinanceCalculator.API.Services
                 Round(currentTotalCostToClose);
 
             // Нов кредит (рефинансиране)
-           
+
             decimal upfrontFeesPercentAmount =
                 remainingPrincipal *
                 (request.UpfrontFeesPercent / 100m);
@@ -150,7 +150,7 @@ namespace FinanceCalculator.API.Services
             return response;
         }
 
-        
+
 
         // Генерира анюитетен погасителен план
         private static List<ScheduleItem> BuildAnnuitySchedule(

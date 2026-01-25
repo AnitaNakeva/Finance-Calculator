@@ -1,4 +1,5 @@
 
+using System.Text.Json.Serialization;
 using FinanceCalculator.API.Contracts;
 using FinanceCalculator.API.Services;
 
@@ -20,7 +21,27 @@ namespace FinanceCalculator.API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddControllers()
+              .AddJsonOptions(options =>
+              {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+              });
+
+
+            builder.Services.AddCors(options =>
+            {
+              options.AddPolicy("AllowFrontend", policy =>
+              {
+                policy
+                  .AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+              });
+            });
+
             var app = builder.Build();
+
+            app.UseCors("AllowFrontend");
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -40,6 +61,10 @@ namespace FinanceCalculator.API
             app.MapControllers();
 
             app.Run();
+
+
+
+
         }
     }
 }
