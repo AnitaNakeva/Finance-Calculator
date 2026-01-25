@@ -8,6 +8,8 @@
         public PaymentType PaymentType { get; set; }
 
         // промо период (по избор)
+
+        public int GraceMonths { get; set; }
         public int PromoMonths { get; set; }
         public decimal PromoAnnualInterestRate { get; set; }
     }

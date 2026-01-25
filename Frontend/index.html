@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Финансов калкулатор</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="brand">
+        <div class="brand-mark">₿</div>
+        <div>
+          <div class="brand-title">Финансов калкулатор</div>
+          <div class="brand-sub">Кредит • Рефинансиране • Лизинг</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-btn active" data-tab="credit">Кредит</button>
+        <button class="nav-btn" data-tab="refinance">Рефинансиране</button>
+        <button class="nav-btn" data-tab="leasing">Лизинг</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- CREDIT -->
+    <section id="credit" class="panel active">
+      <div class="panel-head">
+        <h1>Кредитен калкулатор</h1>
+        <p>Въведи параметрите и виж резултата от API-то.</p>
+      </div>
+
+      <div class="card">
+        <div class="form-grid">
+          <div class="field">
+            <label>Размер на кредита (лв.)</label>
+            <input type="number" id="Principal" placeholder="пример: 10000" min="0" step="0.01">
+          </div>
+
+          <div class="field">
+            <label>Срок (месеци)</label>
+            <input type="number" id="TermMonths1" placeholder="пример: 36" min="0" step="0.01">
+          </div>
+
+          <div class="field">
+            <label>Лихва (%)</label>
+            <input type="number" id="AnnualInterestRate" placeholder="пример: 5.2" min="1" step="1">
+          </div>
+          <div class="field">
+            <label>Тип на вноските</label>
+            <select id="PaymentType">
+              <option value="">Изберете</option>
+              <option value="Annuity">Анюитетни вноски</option>
+              <option value="Decreasing">Намаляващи вноски</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+        <div class="card">
+          <h2 class="section-title">Промоционален период в месеци</h2>
+          <div class="form-grid">
+            <div class="field">
+              <label>Промоционален период (месеци)</label>
+              <input type="number" id="PromoMonths" placeholder="пример: 36" min="0" step="0.01">
+            </div>
+            <div class="field">
+              <label>Гратисен период (месеци)</label>
+              <input type="number" id="GraceMonths" placeholder="пример: 36" min="0" step="0.01">
+            </div>
+            <div class="field">
+              <label>Промоционална лихва (%)</label>
+              <input type="number" id="PromoAnnualInterestRate" placeholder="пример: 5.2" min="0" step="0.01">
+            </div>
+          </div>
+
+
+        </div>
+
+        <div class="actions">
+          <button class="btn primary" onclick="calculateCredit()">Изчисли</button>
+          <button class="btn ghost" onclick="clearResult('creditResult')">Изчисти</button>
+        </div>
+
+        <div class="result">
+          <div class="result-title">Резултат</div>
+          <pre id="creditResult"></pre>
+        </div>
+
+    </section>
+
+    <!-- REFINANCE -->
+    <section id="refinance" class="panel">
+      <div class="panel-head">
+        <h1>Калкулатор за рефинансиране</h1>
+        <p>Сравнение на новите условия спрямо текущи.</p>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Настоящ кредит</h2>
+        <div class="form-grid">
+          <div class="field">
+            <label>Размер на кредита (лв.)</label>
+            <input type="number" id="CurrentPrincipal" placeholder="пример: 10000" min="0" step="0.01">
+          </div>
+
+          <div class="field">
+            <label>Лихва (%)</label>
+            <input type="number" id="CurrentAnnualInterestRate" placeholder="пример: 5.2" min="0" step="0.01">
+          </div>
+
+          <div class="field">
+            <label>Срок на кредита (месеци)</label>
+            <input type="number" id="CurrentTermMonths" placeholder="пример: 36" min="1" step="1">
+          </div>
+
+        </div>
+        <div class="form-grid1">
+          <div class="field">
+            <label>Брой на направените вноски (месеци)</label>
+            <input type="number" id="PaymentsMade" placeholder="пример: 18" min="0" step="0.01">
+          </div>
+
+          <div class="field">
+            <label>Такса за предсрочно погасяване (%)</label>
+            <input type="number" id="EarlyRepaymentFeePercent" placeholder="пример: 5.2" min="1" step="1">
+          </div>
+        </div>
+
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Нов кредит</h2>
+        <div class="form-grid">
+          <div class="field">
+            <label>Лихва (%)</label>
+            <input type="number" id="NewAnnualInterestRate" placeholder="пример: 5.2" min="0" step="0.01">
+          </div>
+          <div class="field">
+            <label>Първоначални такси (%)</label>
+            <input type="number" id="UpfrontFeesPercent" placeholder="пример: 5.2" min="0" step="0.01">
+          </div>
+          <div class="field">
+            <label>Първоначални такси (лв.)</label>
+            <input type="number" id="UpfrontFeesFixed" placeholder="пример: 1000" min="0" step="0.01">
+          </div>
+      </div>
+
+
+      </div>
+
+        <div class="actions">
+          <button class="btn primary" onclick="calculate()">Изчисли</button>
+          <button class="btn ghost" onclick="clearResult('refResult')">Изчисти</button>
+        </div>
+
+        <div class="result">
+          <div class="result-title">Резултат</div>
+          <pre id="refResult"></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- LEASING -->
+    <section id="leasing" class="panel">
+      <div class="panel-head">
+        <h1>Лизингов калкулатор</h1>
+        <p>Изчислява вноска според цена, първоначална вноска и срок.</p>
+      </div>
+
+      <div class="card">
+        <div class="form-grid">
+          <div class="field">
+            <label>Цена (лв.)</label>
+            <input type="number" id="ItemPrice" placeholder="пример: 10000" min="0" step="0.01">
+          </div>
+
+          <div class="field">
+            <label>Първоначална вноска (лв.)</label>
+            <input type="number" id="DownPayment" placeholder="пример: 1000" min="0" step="0.01">
+          </div>
+
+          <div class="field">
+            <label>Срок (месеци)</label>
+            <input type="number" id="TermMonths" placeholder="пример: 36" min="1" step="1">
+          </div>
+        </div>
+        <div class="form-grid1">
+          <div class="field">
+            <label>Месечна вноска (лв.)</label>
+            <input type="number" id="MonthlyPayment" placeholder="пример: 1000" min="0" step="0.01">
+          </div>
+
+          <div class="field">
+            <label>Първоначална такса за обработка (%)</label>
+            <input type="number" id="ProcessingFeePercent" placeholder="пример: 5.2" min="1" step="1">
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary" onclick="calculateLeasing()">Изчисли</button>
+          <button class="btn ghost" onclick="clearResult('leaseResult')">Изчисти</button>
+        </div>
+
+        <div class="result">
+          <div class="result-title">Резултат</div>
+          <pre id="leaseResult"></pre>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="api.js"></script>
+  <script src="credit.js"></script>
+  <script src="refinance.js"></script>
+  <script src="leasing.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
