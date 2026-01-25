@@ -23,9 +23,21 @@ async function calculateCredit() {
 
   try {
     const result = await postCredit(data);
-    document.getElementById("creditResult").textContent = JSON.stringify(result, null, 2);
+    renderCreditResult(result);
   } catch (err) {
     showError("creditResult", err.message);
   }
+}
+function renderCreditResult(result) {
+  document.getElementById("creditResultBox").style.display = "block";
+
+  document.getElementById("creditMonthly").textContent =
+    result.monthlyPayment.toFixed(2) + " лв.";
+
+  document.getElementById("creditInterest").textContent =
+    result.totalInterest.toFixed(2) + " лв.";
+
+  document.getElementById("creditTotal").textContent =
+    result.totalPaid.toFixed(2) + " лв.";
 }
 

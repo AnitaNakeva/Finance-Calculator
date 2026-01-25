@@ -84,13 +84,29 @@
 
         <div class="actions">
           <button class="btn primary" onclick="calculateCredit()">Изчисли</button>
-          <button class="btn ghost" onclick="clearResult('creditResult')">Изчисти</button>
+
         </div>
 
-        <div class="result">
-          <div class="result-title">Резултат</div>
-          <pre id="creditResult"></pre>
+      <!-- CREDIT RESULT -->
+      <div id="creditResultBox" class="result-card" style="display:none;">
+        <h3>Резултат</h3>
+
+        <div class="result-row">
+          <span>Месечна вноска</span>
+          <strong id="creditMonthly">—</strong>
         </div>
+
+        <div class="result-row">
+          <span>Общо лихва</span>
+          <strong id="creditInterest">—</strong>
+        </div>
+
+        <div class="result-row">
+          <span>Общо платено</span>
+          <strong id="creditTotal">—</strong>
+        </div>
+      </div>
+
 
     </section>
 
@@ -156,14 +172,62 @@
 
         <div class="actions">
           <button class="btn primary" onclick="calculate()">Изчисли</button>
-          <button class="btn ghost" onclick="clearResult('refResult')">Изчисти</button>
+
         </div>
 
-        <div class="result">
-          <div class="result-title">Резултат</div>
-          <pre id="refResult"></pre>
-        </div>
+
+      <div id="refResultBox" class="result-box" style="display:none;">
+        <h2 class="result-title">Резултати</h2>
+
+        <table class="compare-table">
+          <thead>
+          <tr>
+            <th>Показател</th>
+            <th>Текущ кредит</th>
+            <th>Нов кредит</th>
+            <th>+ / − Спестявания</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td>Лихва</td>
+            <td id="curInterest">—</td>
+            <td id="newInterest">—</td>
+            <td>—</td>
+          </tr>
+
+          <tr>
+            <td>Срок (месеци)</td>
+            <td id="curTerm">—</td>
+            <td id="newTerm">—</td>
+            <td>—</td>
+          </tr>
+
+          <tr>
+            <td>Такси</td>
+            <td id="curFees">—</td>
+            <td id="newFees">—</td>
+            <td>—</td>
+          </tr>
+
+          <tr>
+            <td>Месечна вноска</td>
+            <td id="curMonthly">—</td>
+            <td id="newMonthly">—</td>
+            <td id="monthlyDiff">—</td>
+          </tr>
+
+          <tr>
+            <td>Общо изплатено</td>
+            <td id="curTotal">—</td>
+            <td id="newTotal">—</td>
+            <td id="totalDiff">—</td>
+          </tr>
+          </tbody>
+        </table>
       </div>
+
+
     </section>
 
     <!-- LEASING -->
@@ -201,17 +265,40 @@
             <input type="number" id="ProcessingFeePercent" placeholder="пример: 5.2" min="1" step="1">
           </div>
         </div>
+      </div>
 
         <div class="actions">
           <button class="btn primary" onclick="calculateLeasing()">Изчисли</button>
-          <button class="btn ghost" onclick="clearResult('leaseResult')">Изчисти</button>
         </div>
 
-        <div class="result">
-          <div class="result-title">Резултат</div>
-          <pre id="leaseResult"></pre>
+        <div id="leasingResultBox" class="result-card" style="display:none;">
+          <h3>Резултат</h3>
+
+          <table class="result-table">
+            <tr>
+              <td>Финансирана сума</td>
+              <td id="leaseFinanced">—</td>
+            </tr>
+            <tr>
+              <td>Общо такси</td>
+              <td id="leaseFees">—</td>
+            </tr>
+            <tr>
+              <td>Общо изплатено</td>
+              <td id="leaseTotalPaid">—</td>
+            </tr>
+            <tr>
+              <td>Оскъпяване (лв.)</td>
+              <td id="leaseOverAmount">—</td>
+            </tr>
+            <tr>
+              <td>Оскъпяване (%)</td>
+              <td id="leaseOverPercent">—</td>
+            </tr>
+          </table>
         </div>
-      </div>
+
+
     </section>
 
   </main>

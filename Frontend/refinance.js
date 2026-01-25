@@ -51,13 +51,61 @@ async function calculate() {
     upfrontFeesFixed: upfrontFeesFixed
   };
 
+
+
+
   try {
     const result = await postRefinance(data);
-    document.getElementById("refResult").textContent =
-      JSON.stringify(result, null, 2);
+    renderRefinanceResult(result, data);
   } catch (err) {
     showError("refResult", err.message);
   }
 }
+function renderRefinanceResult(result, request) {
+  document.getElementById("refResultBox").style.display = "block";
+
+  document.getElementById("curInterest").textContent =
+    request.currentAnnualInterestRate.toFixed(2) + " %";
+
+  document.getElementById("newInterest").textContent =
+    request.newAnnualInterestRate.toFixed(2) + " %";
+
+  document.getElementById("curTerm").textContent =
+    request.currentTermMonths;
+
+  document.getElementById("newTerm").textContent =
+    result.remainingMonths;
+
+  document.getElementById("curFees").textContent =
+    result.earlyRepaymentFeeAmount.toFixed(2) + " лв.";
+
+  document.getElementById("newFees").textContent =
+    (result.upfrontFeesPercentAmount + result.upfrontFeesFixedAmount).toFixed(2) + " лв.";
+
+  document.getElementById("curMonthly").textContent =
+    result.currentMonthlyPayment.toFixed(2) + " лв.";
+
+  document.getElementById("newMonthly").textContent =
+    result.newMonthlyPayment.toFixed(2) + " лв.";
+
+  const monthlySave = result.currentMonthlyPayment - result.newMonthlyPayment;
+  const monthlyDiff = document.getElementById("monthlyDiff");
+  monthlyDiff.textContent = monthlySave.toFixed(2) + " лв.";
+  monthlyDiff.className = monthlySave >= 0 ? "positive" : "negative";
+
+  document.getElementById("curTotal").textContent =
+    result.currentTotalPaidRemaining.toFixed(2) + " лв.";
+
+  document.getElementById("newTotal").textContent =
+    result.newTotalPaid.toFixed(2) + " лв.";
+
+  const totalDiff = document.getElementById("totalDiff");
+  totalDiff.textContent = result.savings.toFixed(2) + " лв.";
+  totalDiff.className = result.savings >= 0 ? "positive" : "negative";
+}
+
+
+
+
 
 

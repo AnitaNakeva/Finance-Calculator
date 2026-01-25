@@ -25,10 +25,29 @@ const data ={
     processingFeePercent:processingFeePercent,
   };
 
+  function renderLeasingResult(r) {
+    document.getElementById("leasingResultBox").style.display = "block";
+
+    leaseFinanced.textContent = r.financedAmount.toFixed(2) + " лв.";
+    leaseFees.textContent = r.processingFeeAmount.toFixed(2) + " лв.";
+    leaseTotalPaid.textContent = r.totalPaid.toFixed(2) + " лв.";
+
+    leaseOverAmount.textContent =
+      r.overpaymentAmount.toFixed(2) + " лв.";
+
+    leaseOverPercent.textContent =
+      r.overpaymentPercent.toFixed(2) + " %";
+
+    leaseOverAmount.className =
+      r.overpaymentAmount >= 0 ? "positive" : "negative";
+
+    leaseOverPercent.className =
+      r.overpaymentPercent >= 0 ? "positive" : "negative";
+  }
 
   try {
     const result = await postLeasing(data);
-    document.getElementById("leaseResult").textContent = JSON.stringify(result, null, 2);
+    renderLeasingResult(result);
   } catch (err) {
     showError("leaseResult", err.message);
   }
