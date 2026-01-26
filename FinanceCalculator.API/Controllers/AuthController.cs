@@ -56,9 +56,7 @@ namespace FinanceCalculator.API.Controllers
             {
                 UserId = userId,
                 Event = "Logout",
-                TimestampUtc = DateTime.UtcNow,
-                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty,
-                UserAgent = Request.Headers.UserAgent.ToString() ?? string.Empty
+                TimestampUtc = DateTime.UtcNow
             });
             await _db.SaveChangesAsync();
             return Ok();

@@ -82,6 +82,52 @@
 
         </div>
 
+        <div class="card">
+          <h2 class="section-title">Първоначални такси</h2>
+          <div class="form-grid">
+            <div class="field">
+              <label>Такса за кандидатстване (лв.)</label>
+              <input type="number" id="ApplicationFee" placeholder="пример: 200" min="0" step="0.01">
+            </div>
+            <div class="field">
+              <label>Такса за обработка (лв.)</label>
+              <input type="number" id="ProcessingFee" placeholder="пример: 150" min="0" step="0.01">
+            </div>
+            <div class="field">
+              <label>Други първоначални такси (лв.)</label>
+              <input type="number" id="OtherInitialFees" placeholder="пример: 50" min="0" step="0.01">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title">Месечни такси</h2>
+          <div class="form-grid">
+            <div class="field">
+              <label>Месечна такса управление (лв.)</label>
+              <input type="number" id="MonthlyManagementFee" placeholder="пример: 5" min="0" step="0.01">
+            </div>
+            <div class="field">
+              <label>Други месечни такси (лв.)</label>
+              <input type="number" id="OtherMonthlyFees" placeholder="пример: 2" min="0" step="0.01">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title">Годишни такси</h2>
+          <div class="form-grid">
+            <div class="field">
+              <label>Годишна такса управление (лв.)</label>
+              <input type="number" id="AnnualManagementFee" placeholder="пример: 50" min="0" step="0.01">
+            </div>
+            <div class="field">
+              <label>Други годишни такси (лв.)</label>
+              <input type="number" id="OtherAnnualFees" placeholder="пример: 25" min="0" step="0.01">
+            </div>
+          </div>
+        </div>
+
         <div class="actions">
           <button class="btn primary" onclick="calculateCredit()">Изчисли</button>
 
@@ -89,7 +135,7 @@
 
       <!-- CREDIT RESULT -->
       <div id="creditResultBox" class="result-card" style="display:none;">
-        <h3>Резултат</h3>
+        <h3>Резултати</h3>
 
         <div class="result-row">
           <span>Месечна вноска</span>
@@ -97,17 +143,40 @@
         </div>
 
         <div class="result-row">
-          <span>Общо лихва</span>
+          <span>Общо лихви</span>
           <strong id="creditInterest">—</strong>
+        </div>
+
+        <div class="result-row">
+          <span>Първоначални такси (общо)</span>
+          <strong id="creditInitialFees">—</strong>
+        </div>
+
+        <div class="result-row">
+          <span>Месечни такси (общо)</span>
+          <strong id="creditMonthlyFees">—</strong>
+        </div>
+
+        <div class="result-row">
+          <span>Годишни такси (общо)</span>
+          <strong id="creditAnnualFees">—</strong>
+        </div>
+
+        <div class="result-row">
+          <span>Общо такси</span>
+          <strong id="creditTotalFees">—</strong>
         </div>
 
         <div class="result-row">
           <span>Общо платено</span>
           <strong id="creditTotal">—</strong>
         </div>
+
+        <div class="result-row">
+          <span>Годишен процентен разход (ГПР)</span>
+          <strong id="creditApr">—</strong>
+        </div>
       </div>
-
-
     </section>
 
     <!-- REFINANCE -->

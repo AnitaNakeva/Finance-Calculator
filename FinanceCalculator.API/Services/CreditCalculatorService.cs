@@ -23,6 +23,11 @@ namespace FinanceCalculator.API.Services
 
             int graceMonths = request.GraceMonths;
             int promoMonths = request.PromoMonths;
+            decimal initialFees = request.ApplicationFee + request.ProcessingFee + request.OtherInitialFees;
+            decimal monthlyFeesTotal = (request.MonthlyManagementFee + request.OtherMonthlyFees) * totalMonths;
+            decimal annualFeeAmount = request.AnnualManagementFee + request.OtherAnnualFees;
+            int chargedYears = totalMonths == 0 ? 0 : (int)Math.Ceiling(totalMonths / 12m);
+            decimal annualFeesTotal = annualFeeAmount * chargedYears;
 
             decimal annuityPayment = 0m;
             decimal principalPerMonth = 0m;
@@ -32,8 +37,8 @@ namespace FinanceCalculator.API.Services
                 int repaymentMonths = totalMonths - graceMonths;
                 if (repaymentMonths > 0)
                 {
-                    decimal firstRate =
-                        promoMonths > graceMonths ? promoMonthlyRate : monthlyRate;
+                    bool promoAffectsRepayment = promoMonths > graceMonths && promoMonths > 0;
+                    decimal firstRate = promoAffectsRepayment ? promoMonthlyRate : monthlyRate;
 
                     annuityPayment = CalculateAnnuity(balance, firstRate, repaymentMonths);
                 }
@@ -106,20 +111,35 @@ namespace FinanceCalculator.API.Services
             }
             
             decimal totalInterest = 0m;
-            decimal totalPaid = 0m;
+            decimal totalInstallments = 0m;
 
             foreach (var row in schedule)
             {
                 totalInterest += row.Interest;
-                totalPaid += row.Payment;
+                totalInstallments += row.Payment;
             }
 
-            response.MonthlyPayment =
-                request.PaymentType == PaymentType.Annuity
-                    ? Round(annuityPayment)
-                    : 0m;
+            decimal totalFees = initialFees + monthlyFeesTotal + annualFeesTotal;
+            decimal totalPaid = totalInstallments + totalFees;
+            decimal years = request.TermMonths / 12m;
+            decimal annualPercentageRate = 0m;
+
+            if (request.Principal > 0 && years > 0m)
+            {
+                annualPercentageRate =
+                    ((totalInterest + totalFees) / request.Principal) / years * 100m;
+            }
+
+            response.MonthlyPayment = schedule.Count > 0
+                ? Round(totalInstallments / schedule.Count)
+                : 0m;
 
             response.TotalInterest = Round(totalInterest);
+            response.InitialFeesTotal = Round(initialFees);
+            response.MonthlyFeesTotal = Round(monthlyFeesTotal);
+            response.AnnualFeesTotal = Round(annualFeesTotal);
+            response.TotalFees = Round(totalFees);
+            response.AnnualPercentageRate = Round(annualPercentageRate);
             response.TotalPaid = Round(totalPaid);
             response.Schedule = schedule;
 

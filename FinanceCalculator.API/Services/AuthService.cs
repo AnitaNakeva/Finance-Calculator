@@ -15,13 +15,10 @@ namespace FinanceCalculator.API.Services
     {
         private readonly AppDbContext _db;
         private readonly IConfiguration _configuration;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public AuthService(AppDbContext db, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+        public AuthService(AppDbContext db, IConfiguration configuration)
         {
             _db = db;
             _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<AuthResponse?> RegisterAsync(RegisterRequest request)
@@ -119,17 +116,11 @@ namespace FinanceCalculator.API.Services
 
         private async Task LogAuditAsync(int userId, string @event)
         {
-            var ctx = _httpContextAccessor.HttpContext;
-            var ip = ctx?.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
-            var ua = ctx?.Request.Headers.UserAgent.ToString() ?? string.Empty;
-
             await _db.AuditLogs.AddAsync(new AuditLog
             {
                 UserId = userId,
                 Event = @event,
-                TimestampUtc = DateTime.UtcNow,
-                IpAddress = ip,
-                UserAgent = ua
+                TimestampUtc = DateTime.UtcNow
             });
             await _db.SaveChangesAsync();
         }

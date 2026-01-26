@@ -10,6 +10,9 @@ dotnet run
 ```
 Swagger (Development): `http://localhost:5195/swagger`
 
+## Project structure
+- `Models/` now contains per-feature folders (`Auth`, `Credit`, `Refinance`, `Leasing`, `History`, `Favorites`, `Common`) to keep related DTOs/entities grouped.
+
 ## Configuration
 `appsettings.json` / `appsettings.Development.json`:
 - `ConnectionStrings:DefaultConnection` = `Data Source=identifier.sqlite`
@@ -28,14 +31,14 @@ Swagger (Development): `http://localhost:5195/swagger`
 ### 1) Credit calculator  
 `POST /api/credit/calculate`
 
-**Input (`CreditRequest`):** `Principal`, `TermMonths`, `AnnualInterestRate`, `PaymentType` (0 Annuity / 1 Decreasing), `GraceMonths`, `PromoMonths`, `PromoAnnualInterestRate`.
+**Input (`CreditRequest`):** `Principal`, `TermMonths`, `AnnualInterestRate`, `PaymentType` (0 Annuity / 1 Decreasing), `GraceMonths`, `PromoMonths`, `PromoAnnualInterestRate`, initial fees (`ApplicationFee`, `ProcessingFee`, `OtherInitialFees`), monthly fees (`MonthlyManagementFee`, `OtherMonthlyFees`), annual fees (`AnnualManagementFee`, `OtherAnnualFees`).
 
 **Logic:**  
 - Annuity: payment = P*r/(1-(1+r)^-n); recalculates when promo/grace ends.  
 - Decreasing: fixed principal per month, payment decreases; history shows `MonthlyPayment` as averaged (“Average ...”).  
 - Grace: first `GraceMonths` pay interest only; last installment adjusts remaining balance.
 
-**Output (`CreditResponse`):** `MonthlyPayment` (annuity) or averaged (decreasing), `TotalInterest`, `TotalPaid`, `Schedule[]` (Month, OpeningBalance, Interest, Principal, Payment, ClosingBalance).
+**Output (`CreditResponse`):** `MonthlyPayment` (annuity) or averaged (decreasing), `TotalInterest`, fee breakdown (`InitialFeesTotal`, `MonthlyFeesTotal`, `AnnualFeesTotal`, `TotalFees`), `TotalPaid` (installments + fees), `AnnualPercentageRate`, `Schedule[]` (Month, OpeningBalance, Interest, Principal, Payment, ClosingBalance).
 
 ### 2) Leasing goods calculator  
 `POST /api/leasing-goods/calculate`
@@ -75,7 +78,6 @@ All calculators persist a `CalculationRecord` for the current user after a succe
 - `PATCH /api/admin/users/{id}/role` — body `{ "role": "Admin"|"User" }`
 - `GET /api/admin/calculations` (`?userId` optional)
 - `GET /api/admin/audit` (`?userId` optional)
-- `POST /api/admin/cleanup?days=30` — deletes old revoked tokens and audit logs.
 
 ## Data & database
 - SQLite file: `identifier.sqlite`. Auto-created (`EnsureCreated`). If schema changes → delete the file or switch to EF migrations (`dotnet ef migrations add ...; dotnet ef database update`) and replace EnsureCreated with Migrate().

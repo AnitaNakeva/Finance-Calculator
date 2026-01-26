@@ -123,6 +123,21 @@ namespace FinanceCalculator.API.Services
             return favorite;
         }
 
+        public async Task AddRecordAsync(int userId, string calculationType, object request, object response)
+        {
+            var record = new CalculationRecord
+            {
+                UserId = userId,
+                CalculationType = calculationType,
+                RequestJson = JsonSerializer.Serialize(request),
+                ResponseJson = JsonSerializer.Serialize(response),
+                CreatedAtUtc = DateTime.UtcNow
+            };
+
+            _db.CalculationRecords.Add(record);
+            await _db.SaveChangesAsync();
+        }
+
         public async Task<CalculationHistoryView?> GetHistoryItemAsync(int userId, int id)
         {
             var record = await _db.CalculationRecords

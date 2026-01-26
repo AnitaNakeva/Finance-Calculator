@@ -46,11 +46,5 @@ namespace FinanceCalculator.API.Controllers
             return Ok(items);
         }
 
-        [HttpPost("cleanup")]
-        public async Task<IActionResult> Cleanup([FromQuery] int days = 30)
-        {
-            await _admin.CleanupAsync(days);
-            return NoContent();
-        }
     }
 }

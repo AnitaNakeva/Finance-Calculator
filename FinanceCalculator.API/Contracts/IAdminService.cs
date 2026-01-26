@@ -8,6 +8,5 @@ namespace FinanceCalculator.API.Contracts
         Task<(bool success, string? error)> ChangeRoleAsync(int userId, string role);
         Task<IEnumerable<object>> GetCalculationsAsync(int? userId);
         Task<IEnumerable<object>> GetAuditAsync(int? userId);
-        Task CleanupAsync(int days);
     }
 }

@@ -77,24 +77,10 @@ namespace FinanceCalculator.API.Services
                     a.UserId,
                     Username = a.User != null ? a.User.Username : string.Empty,
                     a.Event,
-                    a.TimestampUtc,
-                    a.IpAddress,
-                    a.UserAgent
+                    a.TimestampUtc
                 })
                 .ToListAsync();
         }
 
-        public async Task CleanupAsync(int days)
-        {
-            var cutoff = DateTime.UtcNow.AddDays(-Math.Abs(days));
-
-            var oldTokens = _db.RevokedTokens.Where(r => r.ExpiresAtUtc <= cutoff);
-            if (oldTokens.Any()) _db.RevokedTokens.RemoveRange(oldTokens);
-
-            var oldAudit = _db.AuditLogs.Where(a => a.TimestampUtc <= cutoff);
-            if (oldAudit.Any()) _db.AuditLogs.RemoveRange(oldAudit);
-
-            await _db.SaveChangesAsync();
-        }
     }
 }

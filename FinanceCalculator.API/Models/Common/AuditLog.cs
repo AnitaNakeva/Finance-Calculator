@@ -10,7 +10,6 @@ namespace FinanceCalculator.API.Models
         public DateTime TimestampUtc { get; set; } = DateTime.UtcNow;
         public string IpAddress { get; set; } = string.Empty;
         public string UserAgent { get; set; } = string.Empty;
-
         public User? User { get; set; }
     }
 }
