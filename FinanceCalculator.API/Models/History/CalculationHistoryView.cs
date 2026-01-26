@@ -18,5 +18,10 @@ namespace FinanceCalculator.API.Models
         public decimal? OverpaymentPercent { get; set; }
         public decimal? Savings { get; set; }
         public decimal? CurrentCloseCost { get; set; }
+        public decimal? InitialFees { get; set; }
+        public decimal? MonthlyFees { get; set; }
+        public decimal? AnnualFees { get; set; }
+        public decimal? TotalFees { get; set; }
+        public decimal? AnnualPercentageRate { get; set; }
     }
 }

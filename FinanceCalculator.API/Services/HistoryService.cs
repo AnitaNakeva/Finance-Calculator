@@ -73,7 +73,7 @@ namespace FinanceCalculator.API.Services
                 .ToListAsync();
 
             var sb = new StringBuilder();
-            sb.AppendLine("Id,CalculationType,CreatedAtUtc,Principal,TermMonths,AnnualRate,PaymentType,MonthlyPayment,TotalPaid,TotalInterest");
+            sb.AppendLine("Id,CalculationType,CreatedAtUtc,Principal,TermMonths,AnnualRate,PaymentType,MonthlyPayment,TotalPaid,TotalInterest,InitialFees,MonthlyFees,AnnualFees,TotalFees,AnnualPercentageRate");
 
             foreach (var r in rows)
             {
@@ -89,7 +89,12 @@ namespace FinanceCalculator.API.Services
                     CsvEscape(parsed.PaymentType ?? string.Empty),
                     CsvEscape(parsed.MonthlyPayment ?? string.Empty),
                     CsvEscape(parsed.TotalPaid?.ToString("0.##") ?? string.Empty),
-                    CsvEscape(parsed.TotalInterest?.ToString("0.##") ?? string.Empty)
+                    CsvEscape(parsed.TotalInterest?.ToString("0.##") ?? string.Empty),
+                    CsvEscape(parsed.InitialFees?.ToString("0.##") ?? string.Empty),
+                    CsvEscape(parsed.MonthlyFees?.ToString("0.##") ?? string.Empty),
+                    CsvEscape(parsed.AnnualFees?.ToString("0.##") ?? string.Empty),
+                    CsvEscape(parsed.TotalFees?.ToString("0.##") ?? string.Empty),
+                    CsvEscape(parsed.AnnualPercentageRate?.ToString("0.##") ?? string.Empty)
                 }));
             }
 
@@ -206,7 +211,12 @@ namespace FinanceCalculator.API.Services
                 FinancedAmount = parsed.FinancedAmount,
                 OverpaymentPercent = parsed.OverpaymentPercent,
                 Savings = parsed.Savings,
-                CurrentCloseCost = parsed.CurrentCloseCost
+                CurrentCloseCost = parsed.CurrentCloseCost,
+                InitialFees = parsed.InitialFees,
+                MonthlyFees = parsed.MonthlyFees,
+                AnnualFees = parsed.AnnualFees,
+                TotalFees = parsed.TotalFees,
+                AnnualPercentageRate = parsed.AnnualPercentageRate
             };
         }
 
@@ -237,6 +247,11 @@ namespace FinanceCalculator.API.Services
                             }
                             parsed.TotalPaid = creditResponse.TotalPaid;
                             parsed.TotalInterest = creditResponse.TotalInterest;
+                            parsed.InitialFees = creditResponse.InitialFeesTotal;
+                            parsed.MonthlyFees = creditResponse.MonthlyFeesTotal;
+                            parsed.AnnualFees = creditResponse.AnnualFeesTotal;
+                            parsed.TotalFees = creditResponse.TotalFees;
+                            parsed.AnnualPercentageRate = creditResponse.AnnualPercentageRate;
                         }
                         break;
                     case "leasinggoods":
