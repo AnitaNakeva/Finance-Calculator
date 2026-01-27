@@ -163,59 +163,42 @@ The API base URL can be configured dynamically:
 const API_BASE_URL = window.API_BASE_URL || "http://localhost:5195";
 ```
 
-###Features
-###Credit Calculator
+## Features
 
-Annuity and decreasing payments
+### Credit Calculator
+- Annuity and decreasing payments
+- Promotional and grace periods
+- Initial, monthly, and annual fees
+- APR (GPR) calculation and full cost breakdown
 
-Promotional and grace periods
+### Refinance Calculator
+- Comparison between current and new loan
+- Monthly payment difference
+- Total cost comparison and savings
 
-Initial, monthly, and annual fees
+### Leasing Calculator
+- Fixed monthly installments
+- Processing fee calculation
+- Overpayment amount and percentage
 
-APR (GPR) calculation and cost breakdown
+### User Interface
+- Tab-based navigation (Credit / Refinance / Leasing)
+- Responsive design (desktop and mobile)
+- Visual indicators for positive and negative values
+- Client-side validation and error handling
 
-###Refinance Calculator
+## Error Handling
+- API errors are captured and displayed in a user-friendly manner
+- HTTP and validation errors are handled gracefully
+- Input validation prevents invalid requests
 
-Comparison between current and new loan
-
-Monthly payment difference
-
-Total cost comparison and savings
-
-###Leasing Calculator
-
-Fixed monthly installments
-
-Processing fee calculation
-
-Overpayment amount and percentage
-
-###User Interface
-
-Tab-based navigation (Credit / Refinance / Leasing)
-
-Responsive design (desktop and mobile)
-
-Visual indicators for positive and negative values
-
-Client-side validation and error handling
-
-Error Handling
-API errors are captured and displayed in a user-friendly manner
-
-HTTP and validation errors are handled gracefully
-
-Input validation prevents invalid requests
-
-Running the Frontend
+## Running the Frontend
 The frontend is a static application and does not require a build step.
 
-Start the backend API
+1. Start the backend API
+2. Open `index.html` in a web browser
+3. Ensure the API is running on `http://localhost:5195` (default)
 
-Open index.html in a web browser
-
-Ensure the API is running on http://localhost:5195 (default)
-
-Backend Dependency
-This frontend is designed to work with the FinanceCalculator.API backend.
+## Backend Dependency
+This frontend is designed to work with the **FinanceCalculator.API** backend.  
 All business logic, validation, and persistence are handled by the API.
