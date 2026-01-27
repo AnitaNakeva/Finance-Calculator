@@ -127,59 +127,45 @@ curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/jso
 - Changing `Jwt:Key` invalidates old tokens.
 - If port 5195 is busy: change launchSettings URL or run with `ASPNETCORE_URLS=http://localhost:5000 dotnet run`.
 - For production: enable migrations instead of EnsureCreated and set `RequireHttpsMetadata=true` on JWT bearer.
- #Frontend
+## Frontend
 
-The frontend is a lightweight, responsive web client built with HTML, CSS, and vanilla JavaScript, designed to consume the FinanceCalculator REST API.
-It provides an intuitive UI for credit, refinancing, and leasing calculations, with real-time interaction with the backend.
+The frontend is a lightweight, responsive web client built with **HTML, CSS, and vanilla JavaScript**, designed to consume the FinanceCalculator REST API.  
+It provides an intuitive user interface for credit, refinancing, and leasing calculations by communicating directly with the backend.
 
-Technologies
+### Technologies
+- HTML5
+- CSS3 (custom responsive design)
+- Vanilla JavaScript (ES6)
+- Fetch API
+- RESTful API integration
 
-HTML5
-
-CSS3 (custom responsive design)
-
-Vanilla JavaScript (ES6)
-
-Fetch API for HTTP communication
-
-REST API integration (ASP.NET Core 8 backend)
-
-Architecture Overview
-
-The frontend follows a simple modular structure, where each calculator is separated into its own JavaScript module and communicates directly with the API.
-
+### Project Structure
 frontend/
 │
-├── index.html        # Main UI layout and navigation
-├── style.css         # Global styles and responsive design
+├── index.html # Main layout and navigation
+├── style.css # Global styles and responsive UI
 │
-├── api.js            # Centralized API communication layer
-├── main.js           # Navigation, tabs, shared helpers
+├── api.js # Centralized API communication
+├── main.js # Navigation, tab handling, shared helpers
 │
-├── credit.js         # Credit calculator logic & rendering
-├── refinance.js      # Refinance calculator logic & comparison view
-└── leasing.js        # Leasing calculator logic & result rendering
+├── credit.js # Credit calculator logic
+├── refinance.js # Refinance calculator logic
+└── leasing.js # Leasing calculator logic
 
-API Integration
 
-All API calls are centralized in api.js, which acts as a lightweight client for the backend:
+### API Integration
+All HTTP requests are centralized in `api.js`, which acts as a thin client for the backend API.
 
-POST /api/credit/calculate
+Configured endpoints:
+- `POST /api/credit/calculate`
+- `POST /api/refinance/calculate`
+- `POST /api/leasing-goods/calculate`
 
-POST /api/refinance/calculate
-
-POST /api/leasing-goods/calculate
-
-The base API URL can be configured dynamically:
-
+The API base URL can be configured dynamically:
+```js
 const API_BASE_URL = window.API_BASE_URL || "http://localhost:5195";
-
-
-This allows easy switching between development and production environments.
-
 Features
-
-Credit calculator
+Credit Calculator
 
 Annuity and decreasing payments
 
@@ -187,53 +173,50 @@ Promotional and grace periods
 
 Initial, monthly, and annual fees
 
-APR (GPR) calculation and full cost breakdown
+APR (GPR) calculation and cost breakdown
 
-Refinance calculator
+Refinance Calculator
 
 Comparison between current and new loan
 
 Monthly payment difference
 
-Total cost and savings visualization
+Total cost comparison and savings
 
-Leasing calculator
+Leasing Calculator
 
-Fixed monthly payments
+Fixed monthly installments
 
 Processing fee calculation
 
 Overpayment amount and percentage
 
-User-friendly UI
+User Interface
 
 Tab-based navigation (Credit / Refinance / Leasing)
 
-Responsive layout (desktop & mobile)
+Responsive design (desktop and mobile)
 
-Clear visual indicators for positive/negative savings
+Visual indicators for positive and negative values
 
 Client-side validation and error handling
 
 Error Handling
+API errors are captured and displayed in a user-friendly manner
 
-API errors are captured and displayed in a user-friendly way
+HTTP and validation errors are handled gracefully
 
-Validation ensures meaningful input before sending requests
-
-HTTP errors and backend messages are surfaced clearly to the user
+Input validation prevents invalid requests
 
 Running the Frontend
-
-The frontend is static and does not require a build step.
+The frontend is a static application and does not require a build step.
 
 Start the backend API
 
-Open index.html in a browser
+Open index.html in a web browser
 
-Ensure the API is running on the configured port (http://localhost:5195 by default)
+Ensure the API is running on http://localhost:5195 (default)
 
-🔗 Backend Integration
-
-This frontend is designed to work with the FinanceCalculator.API project and consumes its REST endpoints for all financial calculations.
-All business logic and persistence are handled exclusively by the backend.
+Backend Dependency
+This frontend is designed to work with the FinanceCalculator.API backend.
+All business logic, validation, and persistence are handled by the API.
