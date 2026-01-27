@@ -1,7 +1,7 @@
 # FinanceCalculator.API
-
-ASP.NET Core 8 REST API for financial calculators (credit, leasing, refinance) with JWT auth, per-user history, favorites, and admin endpoints. Uses SQLite by default.
 ## Backend
+ASP.NET Core 8 REST API for financial calculators (credit, leasing, refinance) with JWT auth, per-user history, favorites, and admin endpoints. Uses SQLite by default.
+
 ## Run
 ```bash
 cd FinanceCalculator.API/FinanceCalculator.API
