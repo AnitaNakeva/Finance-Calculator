@@ -127,3 +127,113 @@ curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/jso
 - Changing `Jwt:Key` invalidates old tokens.
 - If port 5195 is busy: change launchSettings URL or run with `ASPNETCORE_URLS=http://localhost:5000 dotnet run`.
 - For production: enable migrations instead of EnsureCreated and set `RequireHttpsMetadata=true` on JWT bearer.
+ #Frontend
+
+The frontend is a lightweight, responsive web client built with HTML, CSS, and vanilla JavaScript, designed to consume the FinanceCalculator REST API.
+It provides an intuitive UI for credit, refinancing, and leasing calculations, with real-time interaction with the backend.
+
+Technologies
+
+HTML5
+
+CSS3 (custom responsive design)
+
+Vanilla JavaScript (ES6)
+
+Fetch API for HTTP communication
+
+REST API integration (ASP.NET Core 8 backend)
+
+Architecture Overview
+
+The frontend follows a simple modular structure, where each calculator is separated into its own JavaScript module and communicates directly with the API.
+
+frontend/
+│
+├── index.html        # Main UI layout and navigation
+├── style.css         # Global styles and responsive design
+│
+├── api.js            # Centralized API communication layer
+├── main.js           # Navigation, tabs, shared helpers
+│
+├── credit.js         # Credit calculator logic & rendering
+├── refinance.js      # Refinance calculator logic & comparison view
+└── leasing.js        # Leasing calculator logic & result rendering
+
+API Integration
+
+All API calls are centralized in api.js, which acts as a lightweight client for the backend:
+
+POST /api/credit/calculate
+
+POST /api/refinance/calculate
+
+POST /api/leasing-goods/calculate
+
+The base API URL can be configured dynamically:
+
+const API_BASE_URL = window.API_BASE_URL || "http://localhost:5195";
+
+
+This allows easy switching between development and production environments.
+
+Features
+
+Credit calculator
+
+Annuity and decreasing payments
+
+Promotional and grace periods
+
+Initial, monthly, and annual fees
+
+APR (GPR) calculation and full cost breakdown
+
+Refinance calculator
+
+Comparison between current and new loan
+
+Monthly payment difference
+
+Total cost and savings visualization
+
+Leasing calculator
+
+Fixed monthly payments
+
+Processing fee calculation
+
+Overpayment amount and percentage
+
+User-friendly UI
+
+Tab-based navigation (Credit / Refinance / Leasing)
+
+Responsive layout (desktop & mobile)
+
+Clear visual indicators for positive/negative savings
+
+Client-side validation and error handling
+
+Error Handling
+
+API errors are captured and displayed in a user-friendly way
+
+Validation ensures meaningful input before sending requests
+
+HTTP errors and backend messages are surfaced clearly to the user
+
+Running the Frontend
+
+The frontend is static and does not require a build step.
+
+Start the backend API
+
+Open index.html in a browser
+
+Ensure the API is running on the configured port (http://localhost:5195 by default)
+
+🔗 Backend Integration
+
+This frontend is designed to work with the FinanceCalculator.API project and consumes its REST endpoints for all financial calculations.
+All business logic and persistence are handled exclusively by the backend.
