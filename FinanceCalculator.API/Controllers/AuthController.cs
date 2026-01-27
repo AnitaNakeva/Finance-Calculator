@@ -43,22 +43,10 @@ namespace FinanceCalculator.API.Controllers
         public async Task<IActionResult> Logout()
         {
             var jti = User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Jti)?.Value;
-            if (string.IsNullOrEmpty(jti)) return BadRequest();
 
             var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
 
-            await _db.RevokedTokens.AddAsync(new RevokedToken
-            {
-                Jti = jti,
-                ExpiresAtUtc = DateTime.UtcNow.AddDays(7)
-            });
-            await _db.AuditLogs.AddAsync(new AuditLog
-            {
-                UserId = userId,
-                Event = "Logout",
-                TimestampUtc = DateTime.UtcNow
-            });
-            await _db.SaveChangesAsync();
+            await _authService.LogoutAsync(userId, jti);
             return Ok();
         }
     }

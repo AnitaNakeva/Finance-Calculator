@@ -88,6 +88,7 @@ namespace FinanceCalculator.API.Services
                     }
                 }
 
+                // to make sure the closing balance is 0
                 if (month == totalMonths && request.PaymentType == PaymentType.Annuity)
                 {
                     principal = openingBalance;
@@ -121,14 +122,11 @@ namespace FinanceCalculator.API.Services
 
             decimal totalFees = initialFees + monthlyFeesTotal + annualFeesTotal;
             decimal totalPaid = totalInstallments + totalFees;
-            decimal years = request.TermMonths / 12m;
-            decimal annualPercentageRate = 0m;
-
-            if (request.Principal > 0 && years > 0m)
-            {
-                annualPercentageRate =
-                    ((totalInterest + totalFees) / request.Principal) / years * 100m;
-            }
+            decimal annualPercentageRate = CalculateApproxApr(
+                request.Principal,
+                totalPaid,
+                totalFees,
+                schedule);
 
             response.MonthlyPayment = schedule.Count > 0
                 ? Round(totalInstallments / schedule.Count)
@@ -139,7 +137,7 @@ namespace FinanceCalculator.API.Services
             response.MonthlyFeesTotal = Round(monthlyFeesTotal);
             response.AnnualFeesTotal = Round(annualFeesTotal);
             response.TotalFees = Round(totalFees);
-            response.AnnualPercentageRate = Round(annualPercentageRate);
+            response.AnnualPercentageRate = annualPercentageRate;
             response.TotalPaid = Round(totalPaid);
             response.Schedule = schedule;
 
@@ -161,6 +159,47 @@ namespace FinanceCalculator.API.Services
         private decimal Round(decimal value)
         {
             return Math.Round(value, 2, MidpointRounding.AwayFromZero);
+        }
+
+        private decimal CalculateApproxApr(
+            decimal principal,
+            decimal totalPaid,
+            decimal totalFees,
+            List<ScheduleItem> schedule)
+        {
+            if (principal <= 0 || schedule.Count == 0)
+                return 0m;
+
+            decimal netPrincipal = principal - totalFees;
+
+            if (netPrincipal <= 0)
+                return 0m;
+
+            // all interests + all fees
+            decimal totalCost = totalPaid - principal;
+
+            decimal weightedTimeSum = 0m;
+            decimal paymentSum = 0m;
+
+            foreach (var row in schedule)
+            {
+                weightedTimeSum += row.Month * row.Payment;
+                paymentSum += row.Payment;
+            }
+
+            if (paymentSum == 0)
+                return 0m;
+
+            decimal avgTime = weightedTimeSum / paymentSum; // average month to pay
+            if (avgTime <= 0)
+                return 0m;
+
+            decimal monthlyRate = totalCost / (netPrincipal * avgTime);
+
+            decimal apr = monthlyRate * 12m * 100m;
+
+            // 12,225 -> 12,23
+            return Round(apr);
         }
 
     }

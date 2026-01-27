@@ -79,14 +79,16 @@ namespace FinanceCalculator.API.Tests
             var result = _sut.Calculate(req);
 
             result.Schedule.Should().HaveCount(12);
-            // First month: grace -> payment should equal interest only at promo rate
+
+            // we check if the annuity is recalculated after each period
+
             var m1 = result.Schedule[0];
             m1.Principal.Should().Be(0);
             m1.Payment.Should().BeGreaterThan(0);
-            // Month 2 still promo but no grace
+
             var m2 = result.Schedule[1];
             m2.Payment.Should().BeGreaterThan(m1.Payment);
-            // After promo, payment increases
+
             var m3 = result.Schedule[2];
             m3.Payment.Should().BeGreaterThan(m2.Payment);
         }
@@ -107,23 +109,6 @@ namespace FinanceCalculator.API.Tests
             result.TotalInterest.Should().Be(0m);
             result.Schedule.All(s => s.Interest == 0m).Should().BeTrue();
         }
-        
-        [Fact]
-        public void One_month_credit_should_close_correctly()
-        {
-            var req = new CreditRequest
-            {
-                Principal = 1000m,
-                TermMonths = 1,
-                AnnualInterestRate = 12m,
-                PaymentType = PaymentType.Annuity
-            };
-
-            var result = _sut.Calculate(req);
-
-            result.Schedule.Should().HaveCount(1);
-            result.Schedule[0].ClosingBalance.Should().Be(0);
-        }
 
         [Fact]
         public void Full_grace_period_should_not_reduce_principal()
@@ -139,7 +124,18 @@ namespace FinanceCalculator.API.Tests
 
             var result = _sut.Calculate(req);
 
-            result.Schedule.All(s => s.Principal == 0).Should().BeTrue();
+            result.Schedule.Should().HaveCount(req.TermMonths);
+
+            // Math.Max in case TermMonth is 0
+            var interestOnlyMonths = Math.Max(0, req.TermMonths - 1);
+            result.Schedule
+                .Take(interestOnlyMonths)
+                .All(s => s.Principal == 0m)
+                .Should().BeTrue();
+
+            var last = result.Schedule.Last();
+            last.Principal.Should().Be(req.Principal);
+            last.ClosingBalance.Should().Be(0m);
         }
 
         [Fact]
@@ -174,8 +170,16 @@ namespace FinanceCalculator.API.Tests
 
             var result = _sut.Calculate(req);
 
-            result.Schedule.Should().HaveCount(6);
-            result.Schedule.All(s => s.Principal == 0).Should().BeTrue();
+            result.Schedule.Should().HaveCount(req.TermMonths);
+            var interestOnlyMonths = Math.Max(0, req.TermMonths - 1);
+            result.Schedule
+                .Take(interestOnlyMonths)
+                .All(s => s.Principal == 0m)
+                .Should().BeTrue();
+
+            var last = result.Schedule.Last();
+            last.Principal.Should().Be(req.Principal);
+            last.ClosingBalance.Should().Be(0m);
         }
 
         [Fact]

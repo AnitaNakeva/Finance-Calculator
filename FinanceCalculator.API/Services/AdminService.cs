@@ -39,6 +39,7 @@ namespace FinanceCalculator.API.Services
         public async Task<IEnumerable<object>> GetCalculationsAsync(int? userId)
         {
             var query = _db.CalculationRecords
+                // to get the username
                 .Include(r => r.User)
                 .OrderByDescending(r => r.CreatedAtUtc)
                 .AsQueryable();

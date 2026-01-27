@@ -168,4 +168,5 @@ namespace FinanceCalculator.API.Tests
             Action act = () => _sut.Calculate(req);
             act.Should().Throw<ArgumentException>();
         }
+    }
 }

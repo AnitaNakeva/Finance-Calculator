@@ -30,20 +30,12 @@ namespace FinanceCalculator.API.Services
 
             var skip = (page - 1) * pageSize;
 
-            var rawItems = await query
+            var records = await query
                 .Skip(skip)
                 .Take(pageSize)
-                .Select(r => new CalculationHistoryItem
-                {
-                    Id = r.Id,
-                    CalculationType = r.CalculationType,
-                    RequestJson = r.RequestJson,
-                    ResponseJson = r.ResponseJson,
-                    CreatedAtUtc = r.CreatedAtUtc
-                })
                 .ToListAsync();
 
-            var views = rawItems.Select(ToView).ToList();
+            var views = records.Select(ToView).ToList();
 
             return new CalculationHistoryResponse
             {
@@ -61,43 +53,37 @@ namespace FinanceCalculator.API.Services
                 .OrderByDescending(r => r.CreatedAtUtc)
                 .Take(5000);
 
-            var rows = await query
-                .Select(r => new CalculationHistoryItem
-                {
-                    Id = r.Id,
-                    CalculationType = r.CalculationType,
-                    RequestJson = r.RequestJson,
-                    ResponseJson = r.ResponseJson,
-                    CreatedAtUtc = r.CreatedAtUtc
-                })
-                .ToListAsync();
+            var rows = await query.ToListAsync();
 
+            // because string is immutable, with sb we don't create a new string every time we change it
             var sb = new StringBuilder();
+            
             sb.AppendLine("Id,CalculationType,CreatedAtUtc,Principal,TermMonths,AnnualRate,PaymentType,MonthlyPayment,TotalPaid,TotalInterest,InitialFees,MonthlyFees,AnnualFees,TotalFees,AnnualPercentageRate");
 
-            foreach (var r in rows)
+            foreach (var record in rows)
             {
-                var parsed = ParseDetails(r);
+                var view = ToView(record);
                 sb.AppendLine(string.Join(",", new[]
                 {
-                    CsvEscape(r.Id.ToString()),
-                    CsvEscape(r.CalculationType),
-                    CsvEscape(r.CreatedAtUtc.ToString("o", CultureInfo.InvariantCulture)),
-                    CsvEscape(parsed.Principal?.ToString("0.##") ?? string.Empty),
-                    CsvEscape(parsed.TermMonths?.ToString() ?? string.Empty),
-                    CsvEscape(parsed.AnnualRate?.ToString("0.##") ?? string.Empty),
-                    CsvEscape(parsed.PaymentType ?? string.Empty),
-                    CsvEscape(parsed.MonthlyPayment ?? string.Empty),
-                    CsvEscape(parsed.TotalPaid?.ToString("0.##") ?? string.Empty),
-                    CsvEscape(parsed.TotalInterest?.ToString("0.##") ?? string.Empty),
-                    CsvEscape(parsed.InitialFees?.ToString("0.##") ?? string.Empty),
-                    CsvEscape(parsed.MonthlyFees?.ToString("0.##") ?? string.Empty),
-                    CsvEscape(parsed.AnnualFees?.ToString("0.##") ?? string.Empty),
-                    CsvEscape(parsed.TotalFees?.ToString("0.##") ?? string.Empty),
-                    CsvEscape(parsed.AnnualPercentageRate?.ToString("0.##") ?? string.Empty)
+                    CsvEscape(record.Id.ToString()),
+                    CsvEscape(record.CalculationType),
+                    CsvEscape(record.CreatedAtUtc.ToString("o", CultureInfo.InvariantCulture)),
+                    CsvEscape(view.Principal?.ToString("0.##") ?? string.Empty),
+                    CsvEscape(view.TermMonths?.ToString() ?? string.Empty),
+                    CsvEscape(view.AnnualRate?.ToString("0.##") ?? string.Empty),
+                    CsvEscape(view.PaymentType ?? string.Empty),
+                    CsvEscape(view.MonthlyPayment ?? string.Empty),
+                    CsvEscape(view.TotalPaid?.ToString("0.##") ?? string.Empty),
+                    CsvEscape(view.TotalInterest?.ToString("0.##") ?? string.Empty),
+                    CsvEscape(view.InitialFees?.ToString("0.##") ?? string.Empty),
+                    CsvEscape(view.MonthlyFees?.ToString("0.##") ?? string.Empty),
+                    CsvEscape(view.AnnualFees?.ToString("0.##") ?? string.Empty),
+                    CsvEscape(view.TotalFees?.ToString("0.##") ?? string.Empty),
+                    CsvEscape(view.AnnualPercentageRate?.ToString("0.##") ?? string.Empty)
                 }));
             }
 
+            // transform it to a byte array
             var bytes = Encoding.UTF8.GetBytes(sb.ToString());
             return (bytes, "text/csv", "calculation-history.csv");
         }
@@ -150,16 +136,7 @@ namespace FinanceCalculator.API.Services
 
             if (record == null) return null;
 
-            var item = new CalculationHistoryItem
-            {
-                Id = record.Id,
-                CalculationType = record.CalculationType,
-                RequestJson = record.RequestJson,
-                ResponseJson = record.ResponseJson,
-                CreatedAtUtc = record.CreatedAtUtc
-            };
-
-            return ToView(item);
+            return ToView(record);
         }
 
         private IQueryable<CalculationRecord> BuildQuery(int userId, string? calculationType, DateTime? from, DateTime? to, string? search)
@@ -184,8 +161,10 @@ namespace FinanceCalculator.API.Services
 
             if (!string.IsNullOrWhiteSpace(search))
             {
+                // search everywhere in the text
                 var term = $"%{search.Trim().ToLowerInvariant()}%";
                 query = query.Where(r =>
+                    // to make SQL LIKE query
                     EF.Functions.Like(r.RequestJson.ToLower(), term) ||
                     EF.Functions.Like(r.ResponseJson.ToLower(), term));
             }
@@ -193,93 +172,77 @@ namespace FinanceCalculator.API.Services
             return query;
         }
 
-        private CalculationHistoryView ToView(CalculationHistoryItem item)
+        private CalculationHistoryView ToView(CalculationRecord record)
         {
-            var parsed = ParseDetails(item);
-            return new CalculationHistoryView
+            var view = new CalculationHistoryView
             {
-                Id = item.Id,
-                CalculationType = item.CalculationType,
-                CreatedAtUtc = item.CreatedAtUtc,
-                Principal = parsed.Principal,
-                TermMonths = parsed.TermMonths,
-                AnnualRate = parsed.AnnualRate,
-                PaymentType = parsed.PaymentType,
-                MonthlyPayment = parsed.MonthlyPayment,
-                TotalPaid = parsed.TotalPaid,
-                TotalInterest = parsed.TotalInterest,
-                FinancedAmount = parsed.FinancedAmount,
-                OverpaymentPercent = parsed.OverpaymentPercent,
-                Savings = parsed.Savings,
-                CurrentCloseCost = parsed.CurrentCloseCost,
-                InitialFees = parsed.InitialFees,
-                MonthlyFees = parsed.MonthlyFees,
-                AnnualFees = parsed.AnnualFees,
-                TotalFees = parsed.TotalFees,
-                AnnualPercentageRate = parsed.AnnualPercentageRate
+                Id = record.Id,
+                CalculationType = record.CalculationType,
+                CreatedAtUtc = record.CreatedAtUtc
             };
-        }
 
-        private ParsedCalculation ParseDetails(CalculationHistoryItem item)
-        {
-            var parsed = new ParsedCalculation { CalculationType = item.CalculationType, CreatedAtUtc = item.CreatedAtUtc };
             try
             {
-                switch (item.CalculationType.ToLowerInvariant())
+                switch (record.CalculationType.ToLowerInvariant())
                 {
                     case "credit":
-                        var creditRequest = JsonSerializer.Deserialize<CreditRequest>(item.RequestJson);
-                        var creditResponse = JsonSerializer.Deserialize<CreditResponse>(item.ResponseJson);
+                        var creditRequest = JsonSerializer.Deserialize<CreditRequest>(record.RequestJson);
+                        var creditResponse = JsonSerializer.Deserialize<CreditResponse>(record.ResponseJson);
                         if (creditRequest != null && creditResponse != null)
                         {
-                            parsed.Principal = creditRequest.Principal;
-                            parsed.TermMonths = creditRequest.TermMonths;
-                            parsed.AnnualRate = creditRequest.AnnualInterestRate;
-                            parsed.PaymentType = creditRequest.PaymentType == PaymentType.Decreasing ? "Decreasing" : "Annuity";
-                            if (creditRequest.PaymentType == PaymentType.Decreasing && creditResponse.Schedule != null && creditResponse.Schedule.Count > 0)
+                            view.Principal = creditRequest.Principal;
+                            view.TermMonths = creditRequest.TermMonths;
+                            view.AnnualRate = creditRequest.AnnualInterestRate;
+                            view.PaymentType = creditRequest.PaymentType == PaymentType.Decreasing ? "Decreasing" : "Annuity";
+
+                            if (creditRequest.PaymentType == PaymentType.Decreasing &&
+                                creditResponse.Schedule != null && creditResponse.Schedule.Count > 0)
                             {
                                 var avg = creditResponse.Schedule.Average(s => s.Payment);
-                                parsed.MonthlyPayment = $"Average {avg:0.##}";
+                                view.MonthlyPayment = $"Average {avg:0.##}";
                             }
                             else
                             {
-                                parsed.MonthlyPayment = creditResponse.MonthlyPayment.ToString("0.##");
+                                view.MonthlyPayment = creditResponse.MonthlyPayment.ToString("0.##");
                             }
-                            parsed.TotalPaid = creditResponse.TotalPaid;
-                            parsed.TotalInterest = creditResponse.TotalInterest;
-                            parsed.InitialFees = creditResponse.InitialFeesTotal;
-                            parsed.MonthlyFees = creditResponse.MonthlyFeesTotal;
-                            parsed.AnnualFees = creditResponse.AnnualFeesTotal;
-                            parsed.TotalFees = creditResponse.TotalFees;
-                            parsed.AnnualPercentageRate = creditResponse.AnnualPercentageRate;
+
+                            view.TotalPaid = creditResponse.TotalPaid;
+                            view.TotalInterest = creditResponse.TotalInterest;
+                            view.InitialFees = creditResponse.InitialFeesTotal;
+                            view.MonthlyFees = creditResponse.MonthlyFeesTotal;
+                            view.AnnualFees = creditResponse.AnnualFeesTotal;
+                            view.TotalFees = creditResponse.TotalFees;
+                            view.AnnualPercentageRate = creditResponse.AnnualPercentageRate;
                         }
                         break;
+
                     case "leasinggoods":
-                        var leaseResponse = JsonSerializer.Deserialize<LeasingGoodsResponce>(item.ResponseJson);
+                        var leaseResponse = JsonSerializer.Deserialize<LeasingGoodsResponce>(record.ResponseJson);
                         if (leaseResponse != null)
                         {
-                            parsed.FinancedAmount = leaseResponse.FinancedAmount;
-                            parsed.TotalPaid = leaseResponse.TotalPaid;
-                            parsed.OverpaymentPercent = leaseResponse.OverpaymentPercent;
+                            view.FinancedAmount = leaseResponse.FinancedAmount;
+                            view.TotalPaid = leaseResponse.TotalPaid;
+                            view.OverpaymentPercent = leaseResponse.OverpaymentPercent;
                         }
                         break;
+
                     case "refinance":
-                        var refiResponse = JsonSerializer.Deserialize<RefinaceResponce>(item.ResponseJson);
+                        var refiResponse = JsonSerializer.Deserialize<RefinaceResponce>(record.ResponseJson);
                         if (refiResponse != null)
                         {
-                            parsed.MonthlyPayment = refiResponse.NewMonthlyPayment.ToString("0.##");
-                            parsed.Savings = refiResponse.Savings;
-                            parsed.CurrentCloseCost = refiResponse.CurrentTotalCostToClose;
+                            view.MonthlyPayment = refiResponse.NewMonthlyPayment.ToString("0.##");
+                            view.Savings = refiResponse.Savings;
+                            view.CurrentCloseCost = refiResponse.CurrentTotalCostToClose;
                         }
                         break;
                 }
             }
             catch
             {
-                // ignore parsing errors
+                // ignore parse issues for legacy records
             }
 
-            return parsed;
+            return view;
         }
 
         private string CsvEscape(string input)

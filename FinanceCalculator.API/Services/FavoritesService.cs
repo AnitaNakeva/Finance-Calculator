@@ -36,6 +36,7 @@ namespace FinanceCalculator.API.Services
             return true;
         }
 
+        // using conflict to get the reason if failing
         public async Task<(bool success, string? conflict)> RenameAsync(int userId, int id, string newName)
         {
             var favorite = await _db.FavoriteCalculations.FirstOrDefaultAsync(f => f.Id == id && f.UserId == userId);

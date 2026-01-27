@@ -73,6 +73,9 @@ namespace FinanceCalculator.API.Controllers
 
             var favorite = await _history.FavoriteFromHistoryAsync(userId, id, request?.Name);
             if (favorite == null) return NotFound();
+
+            // it tells us that it created a new resource and gives us the url to find it
+            // in the Favorites controller the get method - favorites/{id}
             return CreatedAtAction(nameof(FavoritesController.Get), "Favorites", new { id = favorite.Id }, favorite);
         }
     }

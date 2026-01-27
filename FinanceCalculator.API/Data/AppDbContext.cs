@@ -9,10 +9,14 @@ namespace FinanceCalculator.API.Data
         {
         }
 
+        // history table
         public DbSet<CalculationRecord> CalculationRecords { get; set; } = null!;
+
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<RevokedToken> RevokedTokens { get; set; } = null!;
         public DbSet<AuditLog> AuditLogs { get; set; } = null!;
+
+        // favourites table
         public DbSet<FavoriteCalculation> FavoriteCalculations { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

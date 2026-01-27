@@ -91,6 +91,10 @@ namespace FinanceCalculator.API.Services
             if (r.MonthlyPayment <= 0)
                 throw new ArgumentException("Месечната вноска трябва да е > 0");
 
+            var financedAmount = r.ItemPrice - r.DownPayment;
+            if (r.MonthlyPayment * r.TermMonths < financedAmount)
+                throw new ArgumentException("Monthly payment is too small to cover financed amount.");
+
             if (r.ProcessingFeePercent < 0)
                 throw new ArgumentException("Таксата не може да е отрицателна");
         }
