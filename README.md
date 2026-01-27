@@ -140,17 +140,14 @@ It provides an intuitive user interface for credit, refinancing, and leasing cal
 - RESTful API integration
 
 ### Project Structure
-frontend/
 
- index.html # Main layout and navigation
-style.css # Global styles and responsive UI
-
-api.js # Centralized API communication
- main.js # Navigation, tab handling, shared helpers
-
- credit.js # Credit calculator logic
- refinance.js # Refinance calculator logic
- leasing.js # Leasing calculator logic
+- `index.html` – Main layout and navigation
+- `style.css` – Global styles and responsive UI
+- `api.js` – Centralized API communication
+- `main.js` – Navigation, tab handling, shared helpers
+- `credit.js` – Credit calculator logic
+- `refinance.js` – Refinance calculator logic
+- `leasing.js` – Leasing calculator logic
 
 
 ### API Integration
@@ -166,8 +163,8 @@ The API base URL can be configured dynamically:
 const API_BASE_URL = window.API_BASE_URL || "http://localhost:5195";
 ```
 
-Features
-Credit Calculator
+###Features
+###Credit Calculator
 
 Annuity and decreasing payments
 
@@ -177,7 +174,7 @@ Initial, monthly, and annual fees
 
 APR (GPR) calculation and cost breakdown
 
-Refinance Calculator
+###Refinance Calculator
 
 Comparison between current and new loan
 
@@ -185,7 +182,7 @@ Monthly payment difference
 
 Total cost comparison and savings
 
-Leasing Calculator
+###Leasing Calculator
 
 Fixed monthly installments
 
@@ -193,7 +190,7 @@ Processing fee calculation
 
 Overpayment amount and percentage
 
-User Interface
+###User Interface
 
 Tab-based navigation (Credit / Refinance / Leasing)
 
