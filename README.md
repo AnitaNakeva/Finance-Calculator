@@ -141,16 +141,16 @@ It provides an intuitive user interface for credit, refinancing, and leasing cal
 
 ### Project Structure
 frontend/
-│
-├── index.html # Main layout and navigation
-├── style.css # Global styles and responsive UI
-│
-├── api.js # Centralized API communication
-├── main.js # Navigation, tab handling, shared helpers
-│
-├── credit.js # Credit calculator logic
-├── refinance.js # Refinance calculator logic
-└── leasing.js # Leasing calculator logic
+
+ index.html # Main layout and navigation
+style.css # Global styles and responsive UI
+
+api.js # Centralized API communication
+ main.js # Navigation, tab handling, shared helpers
+
+ credit.js # Credit calculator logic
+ refinance.js # Refinance calculator logic
+ leasing.js # Leasing calculator logic
 
 
 ### API Integration
@@ -164,6 +164,8 @@ Configured endpoints:
 The API base URL can be configured dynamically:
 ```js
 const API_BASE_URL = window.API_BASE_URL || "http://localhost:5195";
+```
+
 Features
 Credit Calculator
 
